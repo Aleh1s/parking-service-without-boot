@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Places</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link href="../../css/style.css" rel="stylesheet">
+
+    <style>
+        .search_bar {
+            margin-top: 30px;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        .place-list {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        body {
+            align-items: start;
+        }
+    </style>
+
+</head>
+<body>
+<div class="container">
+    <div class="search_bar">
+        <form class="d-flex gap-3" th:method="post" th:action="@{/places}" th:object="${searchInfo}">
+            <div>
+                <label for="floor" class="form-label">Floor: </label>
+                <input class="form-control" type="number" th:field="*{floor}" id="floor">
+                <div style="color: red" th:if="${#fields.hasErrors('floor')}" th:errors="*{floor}"></div>
+            </div>
+            <div>
+                <label for="check_in" class="form-label">Check-in: </label>
+                <input class="form-control" type="datetime-local" th:field="*{checkIn}" id="check_in">
+                <div style="color: red" th:if="${#fields.hasErrors('checkIn')}" th:errors="*{checkIn}"></div>
+            </div>
+            <div>
+                <label for="check_out" class="form-label">Check-out: </label>
+                <input class="form-control" type="datetime-local" th:field="*{checkOut}" id="check_out">
+                <div style="color: red" th:if="${#fields.hasErrors('checkOut')}" th:errors="*{checkOut}"></div>
+            </div>
+            <div class="d-flex justify-content-center align-items-end">
+                <input type="submit" class="btn btn-info" value="Search">
+            </div>
+        </form>
+    </div>
+    <div class="place-list">
+        <table th:if="${placeDtoList}" style="color: white" class="table w-75">
+            <thead>
+            <tr class="bg-primary">
+                <th scope="col">Floor</th>
+                <th scope="col">Place</th>
+                <th scope="col">Book</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="placeDto : ${placeDtoList}" th:styleappend="${placeDto.isTaken ? 'background :#262b2f' : ''}">
+                <td th:text="${placeDto.floor}"></td>
+                <td th:text="${placeDto.place}"></td>
+                <td>
+                    <form method="post" th:action="@{/bookings/{place-id}(place-id=${placeDto.id})}"
+                          th:object="${searchInfo}">
+                        <input type="hidden" th:field="*{floor}" th:value="${searchInfo.floor}">
+                        <input type="hidden" th:field="*{checkIn}" th:value="${searchInfo.checkIn}">
+                        <input type="hidden" th:field="*{checkOut}" th:value="${searchInfo.checkOut}">
+
+                        <input th:if="${placeDto.isTaken}" class="btn-sm btn-secondary" type="submit" value="Taken"
+                               disabled>
+                        <input th:unless="${placeDto.isTaken}" class="btn-sm btn-success" type="submit" value="Book">
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr class="bg-primary">
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+        <p th:unless="${placeDtoList}" class="text-white fs-3 text-center">Result not found</p>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+</body>
+</html>
